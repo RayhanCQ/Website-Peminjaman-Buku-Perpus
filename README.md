@@ -7,6 +7,35 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## Database Setup
+
+This project is configured for MySQL with the database name `perpus_db`.
+
+1. Create the database in MySQL:
+
+```sql
+CREATE DATABASE perpus_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+2. Copy `.env.example` to `.env`, then make sure the database section matches your local MySQL user:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=perpus_db
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+3. Run the migrations and seed data:
+
+```bash
+php artisan migrate --seed
+```
+
+You can also import `database/perpus_db.sql` directly through phpMyAdmin or MySQL Workbench.
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
