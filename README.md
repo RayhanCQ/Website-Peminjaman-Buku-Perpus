@@ -1,4 +1,4 @@
-# PerpusKu
+# PerpusKu by Kelompok 20 + 7
 
 PerpusKu is a Laravel-based library management app for tracking books, members, loans, and returns in one tidy dashboard. It is built for a small campus/library workflow: admins manage the collection and circulation, while users browse available books and borrow them.
 
