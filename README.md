@@ -1,88 +1,109 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# PerpusKu
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+PerpusKu is a Laravel-based library management app for tracking books, members, loans, and returns in one tidy dashboard. It is built for a small campus/library workflow: admins manage the collection and circulation, while users browse available books and borrow them.
 
-## Database Setup
+## What It Does
 
-This project is configured for MySQL with the database name `perpus_db`.
+- Role-based login for `admin` and regular library users.
+- Admin dashboard with total book titles and active loan counts.
+- Book management with categories, stock totals, available stock, shelf location, and synopsis fields.
+- Member overview with each user's borrowing history and active loans.
+- Loan return flow that restores book availability automatically.
+- User dashboard with active-loan and history counters.
+- User book search by title or author before borrowing.
+- Seeded sample data so the app feels alive immediately after setup.
 
-1. Create the database in MySQL:
+## Tech Stack
 
-```sql
-CREATE DATABASE perpus_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+- Laravel 12
+- PHP 8.2+
+- MySQL
+- Blade templates
+- Tailwind CSS through CDN in the current views
+- Vite, Tailwind CSS, and Axios available through the frontend toolchain
+
+## Quick Start
+
+Install backend and frontend dependencies:
+
+```bash
+composer install
+npm install
 ```
 
-2. Copy `.env.example` to `.env`, then make sure the database section matches your local MySQL user:
+Create your environment file and app key:
 
-```env
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=perpus_db
-DB_USERNAME=root
-DB_PASSWORD=
+```bash
+cp .env.example .env
+php artisan key:generate
 ```
 
-3. Run the migrations and seed data:
+Set up the MySQL database, then run migrations and seeders:
 
 ```bash
 php artisan migrate --seed
 ```
 
-You can also import `database/perpus_db.sql` directly through phpMyAdmin or MySQL Workbench.
+Start the app:
 
-## About Laravel
+```bash
+php artisan serve
+```
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Open the local URL printed by Laravel, usually `http://127.0.0.1:8000`.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Database Setup
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+The full database setup guide now lives in [docs/database-setup.md](docs/database-setup.md). It covers the `perpus_db` MySQL database, `.env` values, migrations, seed data, and the optional SQL dump import from [database/perpus_db.sql](database/perpus_db.sql).
 
-## Learning Laravel
+## Demo Accounts
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+After running the seeder, you can use these accounts:
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+| Role | Login | Password |
+| --- | --- | --- |
+| Admin | `admin` | `password` |
+| User | `chico@student.undip.ac.id` | `password` |
+| User | `siti.a@gmail.com` | `password` |
 
-## Laravel Sponsors
+The `admin` shortcut maps to `admin@perpus.local` in the login controller.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Main Pages
 
-### Premium Partners
+| Area | Route | Purpose |
+| --- | --- | --- |
+| Login | `/` | Sign in as admin or user |
+| Admin dashboard | `/admin/dashboard` | See collection and loan summary |
+| Users | `/admin/users` | Review member borrowing activity |
+| Returns | `/admin/pengembalian` | Record returned books |
+| Books | `/admin/buku` | View available and empty-stock books |
+| Add book | `/admin/buku/tambah` | Add a new book title |
+| User dashboard | `/user/dashboard` | See personal loan summary |
+| Borrowing | `/user/peminjaman` | Search and borrow books |
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## Project Map
 
-## Contributing
+```text
+app/Http/Controllers/   Request flow for auth, admin, books, and users
+app/Models/             Eloquent models for users, books, categories, and loans
+database/migrations/    Table definitions
+database/seeders/       Demo accounts, books, categories, and loan history
+database/perpus_db.sql  Optional SQL dump
+resources/views/        Blade pages for login, admin, and user screens
+routes/web.php          Web route list
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Useful Commands
 
-## Code of Conduct
+```bash
+php artisan migrate --seed   # Build database tables and seed sample data
+php artisan test             # Run the Laravel test suite
+npm run dev                  # Start Vite for frontend assets
+npm run build                # Build frontend assets for production
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Notes
 
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- The app expects MySQL by default and uses `perpus_db` as the database name.
+- Default seeded passwords are only for local/demo usage.
+- Returning a book increments `stok_tersedia`; borrowing decrements it inside a database transaction.
