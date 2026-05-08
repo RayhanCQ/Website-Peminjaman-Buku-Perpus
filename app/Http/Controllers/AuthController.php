@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
+use RuntimeException;
 
 class AuthController extends Controller
 {
@@ -29,12 +32,15 @@ class AuthController extends Controller
             ? 'admin@perpus.local'
             : $credentials['login'];
 
-        if (! Auth::attempt(['email' => $email, 'password' => $credentials['password']])) {
+        $user = User::where('email', $email)->first();
+
+        if (! $user || ! $this->passwordMatches($user, $credentials['password'])) {
             return back()
                 ->withErrors(['login' => 'Email/username atau password salah.'])
                 ->onlyInput('login');
         }
 
+        Auth::login($user);
         $request->session()->regenerate();
 
         return $this->redirectByRole();
@@ -55,5 +61,14 @@ class AuthController extends Controller
         return Auth::user()?->role === 'admin'
             ? redirect()->route('admin.dashboard')
             : redirect()->route('user.dashboard');
+    }
+
+    private function passwordMatches(User $user, string $password): bool
+    {
+        try {
+            return Hash::check($password, $user->password);
+        } catch (RuntimeException) {
+            return false;
+        }
     }
 }
