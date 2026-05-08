@@ -1,16 +1,27 @@
 <?php
 
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BukuController;
+use App\Http\Controllers\UserLibraryController;
 use Illuminate\Support\Facades\Route;
 
-// Halaman Login
-Route::get('/', function () { return view('auth.login'); });
+Route::get('/', [AuthController::class, 'showLogin'])->name('login');
+Route::post('/login', [AuthController::class, 'login'])->name('login.store');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Halaman User (Tinggal 2 menu)
-Route::get('/user/dashboard', function () { return view('user.dashboard', ['role' => 'user']); });
-Route::get('/user/peminjaman', function () { return view('user.peminjaman', ['role' => 'user']); });
+Route::prefix('user')->name('user.')->group(function () {
+    Route::get('/dashboard', [UserLibraryController::class, 'dashboard'])->name('dashboard');
+    Route::get('/peminjaman', [UserLibraryController::class, 'peminjaman'])->name('peminjaman');
+    Route::post('/peminjaman', [UserLibraryController::class, 'storePeminjaman'])->name('peminjaman.store');
+});
 
-// Halaman Admin
-Route::get('/admin/dashboard', function () { return view('admin.dashboard', ['role' => 'admin']); });
-Route::get('/admin/users', function () { return view('admin.users', ['role' => 'admin']); });
-Route::get('/admin/buku', function () { return view('admin.buku.index', ['role' => 'admin']); });
-Route::get('/admin/buku/tambah', function () { return view('admin.buku.create', ['role' => 'admin']); });
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+    Route::get('/users', [AdminController::class, 'users'])->name('users');
+    Route::get('/pengembalian', [AdminController::class, 'pengembalian'])->name('pengembalian');
+    Route::post('/pengembalian', [AdminController::class, 'storePengembalian'])->name('pengembalian.store');
+    Route::get('/buku', [BukuController::class, 'index'])->name('buku.index');
+    Route::get('/buku/tambah', [BukuController::class, 'create'])->name('buku.create');
+    Route::post('/buku', [BukuController::class, 'store'])->name('buku.store');
+});

@@ -12,36 +12,29 @@
         <div class="text-center mb-8">
             <h2 class="text-3xl font-extrabold text-gray-800 mb-2">Login Perpus</h2>
             <p class="text-gray-500 text-sm">Silakan masuk ke akun Anda</p>
-            <p class="text-xs text-indigo-500 mt-2 font-semibold bg-indigo-50 py-1 rounded"></p>
         </div>
-        
-        <form id="loginForm" class="space-y-6">
+
+        @if($errors->any())
+            <div class="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+                {{ $errors->first() }}
+            </div>
+        @endif
+
+        <form method="POST" action="{{ route('login.store') }}" class="space-y-6">
+            @csrf
             <div>
                 <label class="block text-sm font-bold text-gray-700 mb-1">Username / Email</label>
-                <input type="text" id="username" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="Masukkan username...">
+                <input type="text" name="login" value="{{ old('login') }}" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="admin atau email user">
             </div>
             <div>
                 <label class="block text-sm font-bold text-gray-700 mb-1">Password</label>
-                <input type="password" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="••••••••">
+                <input type="password" name="password" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="Masukkan password...">
             </div>
-            
+
             <button type="submit" class="w-full text-center bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition-all shadow-lg hover:shadow-xl">
                 Login Sekarang
             </button>
         </form>
     </div>
-
-    <script>
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault(); // Tahan biar halaman gak refresh
-            let username = document.getElementById('username').value.toLowerCase();
-            
-            if (username === 'admin') {
-                window.location.href = '/admin/dashboard';
-            } else {
-                window.location.href = '/user/dashboard';
-            }
-        });
-    </script>
 </body>
 </html>

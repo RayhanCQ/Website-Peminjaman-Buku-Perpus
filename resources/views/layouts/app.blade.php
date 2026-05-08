@@ -15,18 +15,18 @@
     </style>
 </head>
 <body class="flex h-screen overflow-hidden bg-gray-50 text-gray-800">
-
     <aside id="sidebar" class="bg-white w-64 border-r border-gray-200 absolute inset-y-0 left-0 transform -translate-x-full transition-transform duration-300 z-30 md:relative md:translate-x-0 overflow-y-auto">
         <div class="p-6">
-            <h1 class="text-2xl font-bold text-indigo-600 mb-8 flex items-center gap-2">📚 PerpusKu</h1>
+            <h1 class="text-2xl font-bold text-indigo-600 mb-8 flex items-center gap-2">PerpusKu</h1>
             <nav class="space-y-2">
                 @if(isset($role) && $role === 'user')
-                    <a href="/user/dashboard" class="block px-4 py-2 rounded-lg hover:bg-indigo-50 text-gray-700 hover:text-indigo-600 font-medium transition">🏠 Dashboard</a>
-                    <a href="/user/peminjaman" class="block px-4 py-2 rounded-lg hover:bg-indigo-50 text-gray-700 hover:text-indigo-600 font-medium transition">📖 Peminjaman Buku</a>
-                    @elseif(isset($role) && $role === 'admin')
-                    <a href="/admin/dashboard" class="block px-4 py-2 rounded-lg hover:bg-indigo-50 text-gray-700 hover:text-indigo-600 font-medium transition">📈 Dashboard Admin</a>
-                    <a href="/admin/users" class="block px-4 py-2 rounded-lg hover:bg-indigo-50 text-gray-700 hover:text-indigo-600 font-medium transition">👥 Keseluruhan User</a>
-                    <a href="/admin/buku" class="block px-4 py-2 rounded-lg hover:bg-indigo-50 text-gray-700 hover:text-indigo-600 font-medium transition">📚 Manajemen Buku</a>
+                    <a href="{{ route('user.dashboard') }}" class="block px-4 py-2 rounded-lg hover:bg-indigo-50 text-gray-700 hover:text-indigo-600 font-medium transition">Dashboard</a>
+                    <a href="{{ route('user.peminjaman') }}" class="block px-4 py-2 rounded-lg hover:bg-indigo-50 text-gray-700 hover:text-indigo-600 font-medium transition">Peminjaman Buku</a>
+                @elseif(isset($role) && $role === 'admin')
+                    <a href="{{ route('admin.dashboard') }}" class="block px-4 py-2 rounded-lg hover:bg-indigo-50 text-gray-700 hover:text-indigo-600 font-medium transition">Dashboard Admin</a>
+                    <a href="{{ route('admin.users') }}" class="block px-4 py-2 rounded-lg hover:bg-indigo-50 text-gray-700 hover:text-indigo-600 font-medium transition">Keseluruhan User</a>
+                    <a href="{{ route('admin.pengembalian') }}" class="block px-4 py-2 rounded-lg hover:bg-indigo-50 text-gray-700 hover:text-indigo-600 font-medium transition">Pengembalian Buku</a>
+                    <a href="{{ route('admin.buku.index') }}" class="block px-4 py-2 rounded-lg hover:bg-indigo-50 text-gray-700 hover:text-indigo-600 font-medium transition">Manajemen Buku</a>
                 @endif
             </nav>
         </div>
@@ -36,15 +36,33 @@
         <header class="bg-white shadow-sm px-6 py-4 flex items-center justify-between z-20">
             <div class="flex items-center gap-4">
                 <button id="hamburger" class="text-gray-500 hover:text-indigo-600 focus:outline-none md:hidden">
-                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
                 </button>
                 <h2 class="text-xl font-bold text-gray-800">@yield('title', 'Dashboard')</h2>
             </div>
-            <a href="/" class="text-sm font-semibold text-red-500 hover:text-red-700 bg-red-50 px-4 py-2 rounded-lg">Logout</a>
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="text-sm font-semibold text-red-500 hover:text-red-700 bg-red-50 px-4 py-2 rounded-lg">Logout</button>
+            </form>
         </header>
 
         <main class="flex-1 overflow-y-auto p-6">
             <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden md:hidden"></div>
+
+            @if(session('success'))
+                <div class="mb-6 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm font-semibold text-green-700">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if($errors->any())
+                <div class="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+                    {{ $errors->first() }}
+                </div>
+            @endif
+
             @yield('content')
         </main>
     </div>
