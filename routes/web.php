@@ -24,4 +24,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/buku', [BukuController::class, 'index'])->name('buku.index');
     Route::get('/buku/tambah', [BukuController::class, 'create'])->name('buku.create');
     Route::post('/buku', [BukuController::class, 'store'])->name('buku.store');
+    Route::delete('/buku/{book}/archive', [BukuController::class, 'archive'])->name('buku.archive');
+    Route::delete('/buku/{book}/hapus-permanen', [BukuController::class, 'forceDelete'])->name('buku.force-delete');
 });

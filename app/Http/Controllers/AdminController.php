@@ -19,10 +19,12 @@ class AdminController extends Controller
             return $redirect;
         }
 
+        Peminjaman::tandaiPeminjamanTerlambat();
+
         return view('admin.dashboard', [
             'role' => 'admin',
             'totalJudulBuku' => Buku::count(),
-            'bukuDipinjam' => Peminjaman::whereIn('status', ['dipinjam', 'terlambat'])->count(),
+            'bukuDipinjam' => Peminjaman::aktif()->count(),
         ]);
     }
 
@@ -32,10 +34,12 @@ class AdminController extends Controller
             return $redirect;
         }
 
+        Peminjaman::tandaiPeminjamanTerlambat();
+
         $users = User::where('role', 'user')
             ->with(['peminjaman' => fn ($query) => $query->with('buku')->latest('tanggal_pinjam')])
             ->withCount([
-                'peminjaman as active_loans_count' => fn ($query) => $query->whereIn('status', ['dipinjam', 'terlambat']),
+                'peminjaman as active_loans_count' => fn ($query) => $query->aktif(),
             ])
             ->orderBy('name')
             ->get();
@@ -52,10 +56,12 @@ class AdminController extends Controller
             return $redirect;
         }
 
+        Peminjaman::tandaiPeminjamanTerlambat();
+
         return view('admin.pengembalian', [
             'role' => 'admin',
             'loans' => Peminjaman::with(['user', 'buku'])
-                ->whereIn('status', ['dipinjam', 'terlambat'])
+                ->aktif()
                 ->latest('tanggal_pinjam')
                 ->get(),
         ]);
@@ -78,17 +84,19 @@ class AdminController extends Controller
 
         DB::transaction(function () use ($validated, $returnedAt) {
             $loan = Peminjaman::whereKey($validated['peminjaman_id'])
-                ->whereIn('status', ['dipinjam', 'terlambat'])
+                ->aktif()
                 ->lockForUpdate()
                 ->firstOrFail();
 
             $loan->update([
                 'tanggal_kembali' => $returnedAt,
-                'status' => 'kembali',
+                'status' => Peminjaman::STATUS_KEMBALI,
                 'kondisi_kembali' => $validated['kondisi_kembali'] ?? null,
             ]);
 
-            Buku::whereKey($loan->buku_id)->increment('stok_tersedia');
+            if ($loan->buku_id !== null) {
+                Buku::withTrashed()->whereKey($loan->buku_id)->increment('stok_tersedia');
+            }
         });
 
         return redirect()

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('kode_peminjaman', 30)->unique();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('buku_id')->constrained('buku')->restrictOnDelete();
+            $table->foreignId('buku_id')->nullable()->constrained('buku')->nullOnDelete();
             $table->dateTime('tanggal_pinjam');
             $table->dateTime('tanggal_jatuh_tempo');
             $table->dateTime('tanggal_kembali')->nullable();

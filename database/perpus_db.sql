@@ -152,7 +152,7 @@ CREATE TABLE `peminjaman` (
     `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     `kode_peminjaman` VARCHAR(30) NOT NULL,
     `user_id` BIGINT UNSIGNED NOT NULL,
-    `buku_id` BIGINT UNSIGNED NOT NULL,
+    `buku_id` BIGINT UNSIGNED NULL,
     `tanggal_pinjam` DATETIME NOT NULL,
     `tanggal_jatuh_tempo` DATETIME NOT NULL,
     `tanggal_kembali` DATETIME NULL,
@@ -172,7 +172,7 @@ CREATE TABLE `peminjaman` (
         ON DELETE CASCADE,
     CONSTRAINT `peminjaman_buku_id_foreign`
         FOREIGN KEY (`buku_id`) REFERENCES `buku` (`id`)
-        ON DELETE RESTRICT
+        ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `users`

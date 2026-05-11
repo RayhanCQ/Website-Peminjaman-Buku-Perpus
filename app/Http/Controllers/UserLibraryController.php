@@ -6,8 +6,10 @@ use App\Models\Buku;
 use App\Models\Peminjaman;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -20,11 +22,17 @@ class UserLibraryController extends Controller
         }
 
         $user = Auth::user();
+        Peminjaman::tandaiPeminjamanTerlambat();
 
         return view('user.dashboard', [
             'role' => 'user',
-            'activeBorrowCount' => $user->peminjaman()->whereIn('status', ['dipinjam', 'terlambat'])->count(),
+            'activeBorrowCount' => $user->peminjaman()->aktif()->count(),
             'loanHistoryCount' => $user->peminjaman()->count(),
+            'overdueLoans' => $user->peminjaman()
+                ->with('buku')
+                ->terlambat()
+                ->orderBy('tanggal_jatuh_tempo')
+                ->get(),
         ]);
     }
 
@@ -60,12 +68,21 @@ class UserLibraryController extends Controller
         }
 
         $validated = $request->validate([
-            'buku_id' => ['required', 'exists:buku,id'],
-            'return_date' => ['required', 'date', 'after_or_equal:today'],
+            'buku_id' => ['required', Rule::exists('buku', 'id')->whereNull('deleted_at')],
+            'return_date' => ['required', 'date_format:Y-m-d', 'after_or_equal:today'],
             'return_time' => ['required', 'date_format:H:i'],
         ]);
 
-        $returnAt = "{$validated['return_date']} {$validated['return_time']}:00";
+        $returnAt = Carbon::createFromFormat(
+            'Y-m-d H:i:s',
+            "{$validated['return_date']} {$validated['return_time']}:00"
+        );
+
+        if ($returnAt->lt(now())) {
+            throw ValidationException::withMessages([
+                'return_time' => 'Waktu pengembalian tidak boleh lebih awal dari waktu sekarang.',
+            ]);
+        }
 
         DB::transaction(function () use ($validated, $returnAt) {
             $book = Buku::whereKey($validated['buku_id'])->lockForUpdate()->firstOrFail();
@@ -79,12 +96,12 @@ class UserLibraryController extends Controller
             $book->decrement('stok_tersedia');
 
             Peminjaman::create([
-                'kode_peminjaman' => 'PJM-' . now()->format('YmdHis') . '-' . Auth::id(),
+                'kode_peminjaman' => 'PJM-'.now()->format('YmdHis').'-'.Auth::id(),
                 'user_id' => Auth::id(),
                 'buku_id' => $book->id,
                 'tanggal_pinjam' => now(),
                 'tanggal_jatuh_tempo' => $returnAt,
-                'status' => 'dipinjam',
+                'status' => Peminjaman::STATUS_DIPINJAM,
             ]);
         });
 
